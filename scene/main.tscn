@@ -1,0 +1,91 @@
+[gd_scene load_steps=10 format=2]
+
+[ext_resource path="res://scene/player.tscn" type="PackedScene" id=1]
+[ext_resource path="res://scene/main.gd" type="Script" id=2]
+[ext_resource path="res://scene/enemy.tscn" type="PackedScene" id=3]
+[ext_resource path="res://scene/powerup.tscn" type="PackedScene" id=4]
+[ext_resource path="res://fonts/retro_font.tres" type="DynamicFont" id=5]
+[ext_resource path="res://scripts/HUD.gd" type="Script" id=6]
+[ext_resource path="res://scene/boss.tscn" type="PackedScene" id=7]
+[ext_resource path="res://desert-backgorund.png" type="Texture" id=8]
+
+[sub_resource type="Curve2D" id=1]
+_data = {
+"points": PoolVector2Array( 0, 0, 0, 0, -0.203369, -0.453232, 0, 0, 0, 0, 1023.39, -1.29413 )
+}
+
+[node name="main" type="Node2D"]
+script = ExtResource( 2 )
+Mob = ExtResource( 3 )
+boss = ExtResource( 7 )
+PowerUp = ExtResource( 4 )
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+process_priority = -1
+layer = -1
+
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource( 8 )
+expand = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Player" parent="." instance=ExtResource( 1 )]
+z_index = 2
+z_as_relative = false
+hud = NodePath("../HUD")
+
+[node name="Path2D" type="Path2D" parent="."]
+z_index = 1
+curve = SubResource( 1 )
+
+[node name="PathFollow2D" type="PathFollow2D" parent="Path2D"]
+position = Vector2( -0.203369, -0.453232 )
+rotation = -0.000821507
+
+[node name="SpawnMobTimer" type="Timer" parent="."]
+one_shot = true
+autostart = true
+
+[node name="PlayingTimer" type="Timer" parent="."]
+autostart = true
+
+[node name="PowerupTimer" type="Timer" parent="."]
+
+[node name="HUD" type="CanvasLayer" parent="."]
+script = ExtResource( 6 )
+
+[node name="ActiveBonus" type="Label" parent="HUD"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = -40.0
+margin_right = 608.0
+margin_bottom = -9.0
+custom_fonts/font = ExtResource( 5 )
+text = "Bonnus: invacibility"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Scored" type="Label" parent="HUD"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = -80.0
+margin_right = 338.0
+margin_bottom = -49.0
+custom_fonts/font = ExtResource( 5 )
+text = "Score: 9999"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+[connection signal="boss" from="Player" to="." method="_on_Player_boss"]
+[connection signal="hit" from="Player" to="." method="_on_Player_hit"]
+[connection signal="update_hud" from="Player" to="HUD" method="_on_Player_update_hud"]
+[connection signal="timeout" from="SpawnMobTimer" to="." method="_on_SpawnMobTimer_timeout"]
+[connection signal="timeout" from="PlayingTimer" to="." method="_on_PlayingTimer_timeout"]
+[connection signal="timeout" from="PowerupTimer" to="." method="_on_PowerupTimer_timeout"]
